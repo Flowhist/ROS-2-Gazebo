@@ -1,0 +1,566 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+    <world name="car_world">
+        <physics name="1ms" type="ignored">
+            <max_step_size>0.001</max_step_size>
+            <real_time_factor>1.0</real_time_factor>
+        </physics>
+
+        <!-- 模拟世界的动态 -->
+        <plugin
+            filename="libignition-gazebo-physics-system.so"
+            name="ignition::gazebo::systems::Physics">
+        </plugin>
+
+        <!-- 负责创建模型、移动模型、删除模型和许多其他用户命令 -->
+        <plugin
+            filename="libignition-gazebo-user-commands-system.so"
+            name="ignition::gazebo::systems::UserCommands">
+        </plugin>
+        <plugin
+            filename="libignition-gazebo-scene-broadcaster-system.so"
+            name="ignition::gazebo::systems::SceneBroadcaster">
+        </plugin>
+
+        <!-- 碰撞检测传感器 -->
+        <plugin filename="libignition-gazebo-contact-system.so"
+                name="ignition::gazebo::systems::Contact">
+        </plugin>
+
+        <gui fullscreen="0">
+
+            <!-- 负责显示世界的 3D 场景 -->
+            <plugin filename="GzScene3D" name="3D View">
+                <ignition-gui>
+                <title>3D View</title>
+                <property type="bool" key="showTitleBar">false</property>
+                <property type="string" key="state">docked</property>
+                </ignition-gui>
+
+                <engine>ogre2</engine>
+                <scene>scene</scene>
+                <ambient_light>0.4 0.4 0.4</ambient_light>
+                <background_color>0.8 0.8 0.8</background_color>
+            </plugin>
+
+            <!-- 负责控制世界 -->
+            <plugin filename="WorldControl" name="World control">
+                <ignition-gui>
+                <title>World control</title>
+                <property type="bool" key="showTitleBar">false</property>
+                <property type="bool" key="resizable">false</property>
+                <property type="double" key="height">72</property>
+                <property type="double" key="width">121</property>
+                <property type="double" key="z">1</property>
+
+                <property type="string" key="state">floating</property>
+                <anchors target="3D View">
+                    <line own="left" target="left"/>
+                    <line own="bottom" target="bottom"/>
+                </anchors>
+                </ignition-gui>
+
+                <play_pause>true</play_pause>
+                <step>true</step>
+                <start_paused>true</start_paused>
+                <service>/world/car_world/control</service>
+                <stats_topic>/world/car_world/stats</stats_topic>
+            </plugin>
+
+            <!-- 负责显示世界统计数据 -->
+            <plugin filename="WorldStats" name="World stats">
+                <ignition-gui>
+                <title>World stats</title>
+                <property type="bool" key="showTitleBar">false</property>
+                <property type="bool" key="resizable">false</property>
+                <property type="double" key="height">110</property>
+                <property type="double" key="width">290</property>
+                <property type="double" key="z">1</property>
+
+                <property type="string" key="state">floating</property>
+                <anchors target="3D View">
+                    <line own="right" target="right"/>
+                    <line own="bottom" target="bottom"/>
+                </anchors>
+                </ignition-gui>
+
+                <sim_time>true</sim_time>
+                <real_time>true</real_time>
+                <real_time_factor>true</real_time_factor>
+                <iterations>true</iterations>
+                <topic>/world/car_world/stats</topic>
+
+            </plugin>
+
+            <!-- Entity tree -->
+            <plugin filename="EntityTree" name="Entity tree">
+            </plugin>
+
+            <!-- 监测键盘输入 -->
+            <plugin filename="KeyPublisher" name="Key Publisher"/>
+
+        </gui>
+
+        <light type="directional" name="sun">
+            <cast_shadows>true</cast_shadows>
+            <pose>0 0 10 0 0 0</pose>
+            <diffuse>0.8 0.8 0.8 1</diffuse>
+            <specular>0.2 0.2 0.2 1</specular>
+            <attenuation>
+                <range>1000</range>
+                <constant>0.9</constant>
+                <linear>0.01</linear>
+                <quadratic>0.001</quadratic>
+            </attenuation>
+            <direction>-0.5 0.1 -0.9</direction>
+        </light>
+
+        <model name="ground_plane">
+            <static>true</static>
+            <link name="link">
+                <collision name="collision">
+                <geometry>
+                    <plane>
+                    <normal>0 0 1</normal>
+                    </plane>
+                </geometry>
+                </collision>
+                <visual name="visual">
+                <geometry>
+                    <plane>
+                    <normal>0 0 1</normal>
+                    <size>100 100</size>
+                    </plane>
+                </geometry>
+                <material>
+                    <ambient>0.8 0.8 0.8 1</ambient>
+                    <diffuse>0.8 0.8 0.8 1</diffuse>
+                    <specular>0.8 0.8 0.8 1</specular>
+                </material>
+                </visual>
+            </link>
+        </model>
+
+
+
+        <!-- 正六边形围墙 -->
+        <!-- 六边形半径为 8 米，每条边长约 8 米 -->
+        
+        <!-- 墙1: 正前方 (0°) -->
+        <model name='hex_wall_1'>
+            <static>true</static>
+            <pose>6.928 0 0 0 0 0</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 墙2: 右前方 (60°) -->
+        <model name='hex_wall_2'>
+            <static>true</static>
+            <pose>3.464 6.0 0 0 0 1.047</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 墙3: 右后方 (120°) -->
+        <model name='hex_wall_3'>
+            <static>true</static>
+            <pose>-3.464 6.0 0 0 0 2.094</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 墙4: 正后方 (180°) -->
+        <model name='hex_wall_4'>
+            <static>true</static>
+            <pose>-6.928 0 0 0 0 3.14159</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 墙5: 左后方 (240°) -->
+        <model name='hex_wall_5'>
+            <static>true</static>
+            <pose>-3.464 -6.0 0 0 0 -2.094</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 墙6: 左前方 (300°) -->
+        <model name='hex_wall_6'>
+            <static>true</static>
+            <pose>3.464 -6.0 0 0 0 -1.047</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.3 8.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 内部随机分布的圆柱障碍物 -->
+        
+
+        <!-- 柱子4 -->
+        <model name='pillar_4'>
+            <static>true</static>
+            <pose>-3.0 -1.5 0 0 0 0</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.3</radius>
+                            <length>2.0</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>0.8 0.8 0.3 1</ambient>
+                        <diffuse>0.8 0.8 0.3 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.3</radius>
+                            <length>2.0</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 柱子5 -->
+        <model name='pillar_5'>
+            <static>true</static>
+            <pose>3.5 -1.0 0 0 0 0</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.3</radius>
+                            <length>2.0</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>0.8 0.3 0.8 1</ambient>
+                        <diffuse>0.8 0.3 0.8 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.3</radius>
+                            <length>2.0</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 柱子6 -->
+        <model name='pillar_6'>
+            <static>true</static>
+            <pose>-1.0 3.5 0 0 0 0</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.3</radius>
+                            <length>2.0</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>0.3 0.8 0.8 1</ambient>
+                        <diffuse>0.3 0.8 0.8 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.3</radius>
+                            <length>2.0</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 添加非对称地标物体，帮助 SLAM 区分位置 -->
+        
+        <!-- 大型方形障碍物 - 东侧 -->
+        <model name='landmark_box'>
+            <static>true</static>
+            <pose>5 0 0.5 0 0 0</pose>
+            <link name='link'>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>1.0 2.0 1.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>1.0 2.0 1.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.8 0.2 0.2 1</ambient>
+                        <diffuse>0.8 0.2 0.2 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- L 形障碍物 - 西北侧 -->
+        <model name='landmark_L_shape'>
+            <static>true</static>
+            <pose>-3 4 0.3 0 0 0</pose>
+            <link name='link'>
+                <collision name='collision1'>
+                    <pose>0 0 0 0 0 0</pose>
+                    <geometry>
+                        <box>
+                            <size>0.5 2.0 2</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <collision name='collision2'>
+                    <pose>0.75 -0.75 0 0 0 0</pose>
+                    <geometry>
+                        <box>
+                            <size>2.0 0.5 2</size>
+                        </box>
+                    </geometry>
+                </collision>
+                <visual name='visual1'>
+                    <pose>0 0 0 0 0 0</pose>
+                    <geometry>
+                        <box>
+                            <size>0.5 2.0 2</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.2 0.8 0.2 1</ambient>
+                        <diffuse>0.2 0.8 0.2 1</diffuse>
+                    </material>
+                </visual>
+                <visual name='visual2'>
+                    <pose>0.75 -0.75 0 0 0 0</pose>
+                    <geometry>
+                        <box>
+                            <size>2.0 0.5 2</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.2 0.8 0.2 1</ambient>
+                        <diffuse>0.2 0.8 0.2 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- 三个不同高度的柱子群 - 南侧 -->
+        <model name='landmark_pillars'>
+            <static>true</static>
+            <pose>0 -5 0 0 0 0</pose>
+            <link name='link'>
+                <collision name='collision1'>
+                    <pose>-0.5 0 0.4 0 0 0</pose>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.2</radius>
+                            <length>0.8</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+                <collision name='collision2'>
+                    <pose>0 0 0.6 0 0 0</pose>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.2</radius>
+                            <length>1.2</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+                <collision name='collision3'>
+                    <pose>0.5 0 0.3 0 0 0</pose>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.2</radius>
+                            <length>0.6</length>
+                        </cylinder>
+                    </geometry>
+                </collision>
+                <visual name='visual1'>
+                    <pose>-0.5 0 0.4 0 0 0</pose>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.2</radius>
+                            <length>0.8</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>0.2 0.2 0.8 1</ambient>
+                        <diffuse>0.2 0.2 0.8 1</diffuse>
+                    </material>
+                </visual>
+                <visual name='visual2'>
+                    <pose>0 0 0.6 0 0 0</pose>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.2</radius>
+                            <length>1.2</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>0.8 0.2 0.8 1</ambient>
+                        <diffuse>0.8 0.2 0.8 1</diffuse>
+                    </material>
+                </visual>
+                <visual name='visual3'>
+                    <pose>0.5 0 0.3 0 0 0</pose>
+                    <geometry>
+                        <cylinder>
+                            <radius>0.2</radius>
+                            <length>0.6</length>
+                        </cylinder>
+                    </geometry>
+                    <material>
+                        <ambient>0.2 0.8 0.8 1</ambient>
+                        <diffuse>0.2 0.8 0.8 1</diffuse>
+                    </material>
+                </visual>
+            </link>
+        </model>
+
+        <!-- 引用机器人模型 -->
+        <include>
+            <uri>/home/flowhist/ign_ws/src/robo_ctrl/models/vehicle_robot</uri>
+            <name>vehicle_robot</name>
+            <pose>0 0 0 0 0 0</pose>
+        </include>
+
+        <!-- 引用actor可动障碍物 -->
+        <!-- <include>
+            <uri>/home/flowhist/ign_ws/src/robo_ctrl/models/actor.sdf</uri>
+            <name>actor_walking</name>
+            <pose>-3 -3 0 0 0 0</pose>
+        </include> -->
+
+    </world>
+</sdf>

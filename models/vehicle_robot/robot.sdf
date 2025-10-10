@@ -1,0 +1,524 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+    <model name='vehicle_robot' canonical_link='chassis'>
+        <pose>0 0 0 0 0 0</pose>
+        
+        <link name='chassis'>
+            <pose relative_to='__model__'>0.5 0 0.4 0 0 0</pose>
+            <inertial>
+                <mass>1.14395</mass>
+                <inertia>
+                    <ixx>0.095329</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.381317</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.476646</izz>
+                </inertia>
+            </inertial>
+            <visual name='visual'>
+                <geometry>
+                    <box>
+                        <size>2.0 1.0 0.5</size>
+                    </box>
+                </geometry>
+                <material>
+                    <ambient>0.0 0.0 1.0 1</ambient>
+                    <diffuse>0.0 0.0 1.0 1</diffuse>
+                    <specular>0.0 0.0 1.0 1</specular>
+                </material>
+            </visual> 
+            <collision name='collision'>
+                <geometry>
+                    <box>
+                        <size>2.0 1.0 0.5</size>
+                    </box>
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- IMU 传感器 Link -->
+        <link name='imu_link'>
+            <pose relative_to="chassis">0 0 0.3 0 0 0</pose>  <!-- IMU 位置：chassis 中心上方 30cm -->
+            <inertial>
+                <mass>0.02</mass>  <!-- IMU 重量 20g -->
+                <inertia>
+                    <ixx>0.000001</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.000001</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.000001</izz>
+                </inertia>
+            </inertial>
+            <visual name='visual'>
+                <geometry>
+                    <box>
+                        <size>0.02 0.02 0.01</size>  <!-- 小方块：2cm x 2cm x 1cm -->
+                    </box>
+                </geometry>
+                <material>
+                    <ambient>0.2 0.8 0.2 1</ambient>  <!-- 绿色 -->
+                    <diffuse>0.2 0.8 0.2 1</diffuse>
+                    <specular>0.2 0.8 0.2 1</specular>
+                </material>
+            </visual>
+            <collision name='collision'>
+                <geometry>
+                    <box>
+                        <size>0.02 0.02 0.01</size>
+                    </box>
+                </geometry>
+            </collision>
+            
+            <!-- IMU传感器 -->
+            <sensor name="imu_sensor" type="imu">
+                <pose>0 0 0 0 0 0</pose>  <!-- 传感器在 imu_link 中心 -->
+                <always_on>1</always_on>
+                <update_rate>100</update_rate>  <!-- 提高到 100 Hz -->
+                <visualize>true</visualize>
+                <topic>imu</topic>
+                <ignition_frame_id>vehicle_robot/imu_link</ignition_frame_id>  <!-- 更新 frame_id -->
+                <imu>
+                    <!-- 添加噪声参数，让 IMU 数据更真实 -->
+                    <angular_velocity>
+                        <x>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>2e-4</stddev>
+                            </noise>
+                        </x>
+                        <y>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>2e-4</stddev>
+                            </noise>
+                        </y>
+                        <z>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>2e-4</stddev>
+                            </noise>
+                        </z>
+                    </angular_velocity>
+                    <linear_acceleration>
+                        <x>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>1.7e-2</stddev>
+                            </noise>
+                        </x>
+                        <y>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>1.7e-2</stddev>
+                            </noise>
+                        </y>
+                        <z>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>1.7e-2</stddev>
+                            </noise>
+                        </z>
+                    </linear_acceleration>
+                    <!-- 添加方向噪声（关键！） -->
+                    <orientation>
+                        <x>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>0.00017</stddev>  <!-- ~0.01 度 -->
+                            </noise>
+                        </x>
+                        <y>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>0.00017</stddev>
+                            </noise>
+                        </y>
+                        <z>
+                            <noise type="gaussian">
+                                <mean>0.0</mean>
+                                <stddev>0.00017</stddev>
+                            </noise>
+                        </z>
+                    </orientation>
+                </imu>
+            </sensor>
+        </link>
+
+        <!-- IMU Joint：将 IMU 连接到底盘 -->
+        <joint name='imu_joint' type='fixed'>
+            <child>imu_link</child>
+            <parent>chassis</parent>
+        </joint>
+
+        <!-- 激光雷达 Link -->
+        <link name='lidar_link'>
+            <pose relative_to="chassis">0.8 0 0.5 0 0 0</pose>
+            <inertial>
+                <mass>0.1</mass>  <!-- 雷达重量 100g -->
+                <inertia>
+                    <ixx>0.000167</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.000167</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.000167</izz>
+                </inertia>
+            </inertial>
+            <visual name='visual'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.05</radius>  <!-- 5cm 半径 -->
+                        <length>0.07</length>  <!-- 7cm 高度 -->
+                    </cylinder>
+                </geometry>
+                <material>
+                    <ambient>0.1 0.1 0.1 1</ambient>
+                    <diffuse>0.1 0.1 0.1 1</diffuse>
+                    <specular>0.1 0.1 0.1 1</specular>
+                </material>
+            </visual>
+            <collision name='collision'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.05</radius>
+                        <length>0.07</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+            
+            <!-- 激光雷达传感器 -->
+            <sensor name='gpu_lidar' type='gpu_lidar'>
+                <pose>0 0 0 0 0 0</pose>  <!-- 传感器在 lidar_link 中心 -->
+                <topic>lidar</topic>
+                <update_rate>10</update_rate>
+                <ignition_frame_id>vehicle_robot/lidar_link</ignition_frame_id>  <!-- 更新 frame_id -->
+                <ray>
+                    <scan>
+                        <horizontal>
+                            <samples>360</samples>  <!-- 从 640 减少到 360，减少约 44% 的数据量 -->
+                            <resolution>1</resolution>
+                            <min_angle>-3.141592654</min_angle>
+                            <max_angle>3.141592654</max_angle>
+                        </horizontal>
+                        <vertical>
+                            <samples>1</samples>
+                            <resolution>0.01</resolution>
+                            <min_angle>0</min_angle>
+                            <max_angle>0</max_angle>
+                        </vertical>
+                    </scan>
+                    <range>
+                        <min>0.1</min>
+                        <max>10.0</max>
+                        <resolution>0.01</resolution>
+                    </range>
+                </ray>
+                <always_on>1</always_on>
+                <visualize>true</visualize>
+            </sensor>
+        </link>
+
+        <!-- 雷达 Joint：将雷达连接到底盘 -->
+        <joint name='lidar_joint' type='fixed'>
+            <child>lidar_link</child>
+            <parent>chassis</parent>
+        </joint>
+
+        <!-- Rear left wheel -->
+        <link name='left_rear_wheel'>
+            <pose relative_to="chassis">-0.5 0.6 0 -1.5707 0 0</pose>
+            <inertial>
+                <mass>1</mass>
+                <inertia>
+                    <ixx>0.043333</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.043333</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.08</izz>
+                </inertia>
+            </inertial>
+            <visual name='visual'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <ambient>1.0 0.0 0.0 1</ambient>
+                    <diffuse>1.0 0.0 0.0 1</diffuse>
+                    <specular>1.0 0.0 0.0 1</specular>
+                </material>
+            </visual>
+            <collision name='collision'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+        
+        <!-- Rear right wheel -->
+        <link name='right_rear_wheel'>
+            <pose relative_to="chassis">-0.5 -0.6 0 -1.5707 0 0</pose>
+            <inertial>
+                <mass>1</mass>
+                <inertia>
+                    <ixx>0.043333</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.043333</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.08</izz>
+                </inertia>
+            </inertial>
+            <visual name='visual'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <ambient>1.0 0.0 0.0 1</ambient>
+                    <diffuse>1.0 0.0 0.0 1</diffuse>
+                    <specular>1.0 0.0 0.0 1</specular>
+                </material>
+            </visual>
+            <collision name='collision'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Front left wheel -->
+        <link name='left_front_wheel'>
+            <pose relative_to="chassis">0.5 0.6 0 -1.5707 0 0</pose>
+            <inertial>
+                <mass>1</mass>
+                <inertia>
+                    <ixx>0.043333</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.043333</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.08</izz>
+                </inertia>
+            </inertial>
+            <visual name='visual'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <ambient>1.0 0.0 0.0 1</ambient>
+                    <diffuse>1.0 0.0 0.0 1</diffuse>
+                    <specular>1.0 0.0 0.0 1</specular>
+                </material>
+            </visual>
+            <collision name='collision'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+
+        <!-- Front right wheel -->
+        <link name='right_front_wheel'>
+            <pose relative_to="chassis">0.5 -0.6 0 -1.5707 0 0</pose>
+            <inertial>
+                <mass>1</mass>
+                <inertia>
+                    <ixx>0.043333</ixx>
+                    <ixy>0</ixy>
+                    <ixz>0</ixz>
+                    <iyy>0.043333</iyy>
+                    <iyz>0</iyz>
+                    <izz>0.08</izz>
+                </inertia>
+            </inertial>
+            <visual name='visual'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+                <material>
+                    <ambient>1.0 0.0 0.0 1</ambient>
+                    <diffuse>1.0 0.0 0.0 1</diffuse>
+                    <specular>1.0 0.0 0.0 1</specular>
+                </material>
+            </visual>
+            <collision name='collision'>
+                <geometry>
+                    <cylinder>
+                        <radius>0.4</radius>
+                        <length>0.2</length>
+                    </cylinder>
+                </geometry>
+            </collision>
+        </link>
+        <!-- Rear left wheel joint -->
+        <joint name='left_rear_wheel_joint' type='revolute'>
+            <pose relative_to='left_rear_wheel'/>
+            <parent>chassis</parent>
+            <child>left_rear_wheel</child>   
+            <axis>
+                <xyz expressed_in='__model__'>0 1 0</xyz>
+                <limit>
+                    <lower>-1.79769e+308</lower>
+                    <upper>1.79769e+308</upper>
+                </limit>
+            </axis>
+        </joint>
+        
+        <!-- Rear right wheel joint -->
+        <joint name='right_rear_wheel_joint' type='revolute'>
+            <pose relative_to='right_rear_wheel'/>
+            <parent>chassis</parent>
+            <child>right_rear_wheel</child>
+            <axis>
+                <xyz expressed_in='__model__'>0 1 0</xyz>
+                <limit>
+                    <lower>-1.79769e+308</lower>
+                    <upper>1.79769e+308</upper>
+                </limit>
+            </axis>
+        </joint>
+
+        <!-- Front left wheel joint -->
+        <joint name='left_front_wheel_joint' type='revolute'>
+            <pose relative_to='left_front_wheel'/>
+            <parent>chassis</parent>
+            <child>left_front_wheel</child>
+            <axis>
+                <xyz expressed_in='__model__'>0 1 0</xyz>
+                <limit>
+                    <lower>-1.79769e+308</lower>
+                    <upper>1.79769e+308</upper>
+                </limit>
+            </axis>
+        </joint>
+
+        <!-- Front right wheel joint -->
+        <joint name='right_front_wheel_joint' type='revolute'>
+            <pose relative_to='right_front_wheel'/>
+            <parent>chassis</parent>
+            <child>right_front_wheel</child>
+            <axis>
+                <xyz expressed_in='__model__'>0 1 0</xyz>
+                <limit>
+                    <lower>-1.79769e+308</lower>
+                    <upper>1.79769e+308</upper>
+                </limit>
+            </axis>
+        </joint>
+
+        <!-- Differential drive plugin for 4-wheel drive -->
+        <plugin
+            filename="libignition-gazebo-diff-drive-system.so"
+            name="ignition::gazebo::systems::DiffDrive">
+            <left_joint>left_rear_wheel_joint</left_joint>
+            <left_joint>left_front_wheel_joint</left_joint>
+            <right_joint>right_rear_wheel_joint</right_joint>
+            <right_joint>right_front_wheel_joint</right_joint>
+            <wheel_separation>1.2</wheel_separation>
+            <wheel_radius>0.4</wheel_radius>
+            <odom_publish_frequency>50</odom_publish_frequency>  <!-- 提高到 50Hz，避免 TF 外推警告 -->
+            <topic>cmd_vel</topic>
+        </plugin>
+        
+        <!-- 配置四个方向键的控制指令 -->
+        <!-- Moving Forward-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+                name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777235</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 2}, angular: {z: 0.0}
+            </output>
+        </plugin>
+
+        <!-- Moving Backward-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+                name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777237</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: -2}, angular: {z: 0.0}
+            </output>
+        </plugin>
+
+        <!-- Rotating right-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+                name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777236</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 0.0}, angular: {z: -1.5}
+            </output>
+        </plugin>
+
+        <!--Rotating left-->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+                name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Int32" topic="/keyboard/keypress">
+                <match field="data">16777234</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 0.0}, angular: {z: 1.5}
+            </output>
+        </plugin>
+
+        <!-- 碰撞后停止 -->
+        <plugin filename="libignition-gazebo-triggered-publisher-system.so"
+                name="ignition::gazebo::systems::TriggeredPublisher">
+            <input type="ignition.msgs.Boolean" topic="/wall/touched">
+                <match>data: true</match>
+            </input>
+            <output type="ignition.msgs.Twist" topic="/cmd_vel">
+                linear: {x: 0.0}, angular: {z: 0.0}
+            </output>
+        </plugin>
+
+        <!-- IMU传感器 -->
+        <plugin filename="libignition-gazebo-imu-system.so"
+                name="ignition::gazebo::systems::Imu">
+        </plugin>
+
+        <!-- 激光雷达传感器 -->
+        <plugin
+            filename="libignition-gazebo-sensors-system.so"
+            name="ignition::gazebo::systems::Sensors">
+            <render_engine>ogre2</render_engine>
+        </plugin>
+
+        <!-- Joint State Publisher 插件 -->
+        <plugin
+            filename="libignition-gazebo-joint-state-publisher-system.so"
+            name="ignition::gazebo::systems::JointStatePublisher">
+            <joint_name>left_rear_wheel_joint</joint_name>
+            <joint_name>right_rear_wheel_joint</joint_name>
+            <joint_name>left_front_wheel_joint</joint_name>
+            <joint_name>right_front_wheel_joint</joint_name>
+        </plugin>
+    </model>
+</sdf>
