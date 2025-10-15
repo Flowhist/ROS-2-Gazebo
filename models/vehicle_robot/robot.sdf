@@ -169,8 +169,8 @@
             <visual name='visual'>
                 <geometry>
                     <cylinder>
-                        <radius>0.05</radius>  <!-- 5cm 半径 -->
-                        <length>0.07</length>  <!-- 7cm 高度 -->
+                        <radius>0.04875</radius> <!-- 原0.05→48.75mm，匹配R2直径97.5mm -->
+                        <length>0.0805</length>  <!-- 原0.07→80.5mm，匹配R2高度 -->
                     </cylinder>
                 </geometry>
                 <material>
@@ -182,8 +182,8 @@
             <collision name='collision'>
                 <geometry>
                     <cylinder>
-                        <radius>0.05</radius>
-                        <length>0.07</length>
+                        <radius>0.04875</radius>
+                        <length>0.0805</length>
                     </cylinder>
                 </geometry>
             </collision>
@@ -192,28 +192,38 @@
             <sensor name='gpu_lidar' type='gpu_lidar'>
                 <pose>0 0 0 0 0 0</pose>  <!-- 传感器在 lidar_link 中心 -->
                 <topic>lidar</topic>
-                <update_rate>10</update_rate>
+                <update_rate>30</update_rate>
                 <ignition_frame_id>vehicle_robot/lidar_link</ignition_frame_id>  <!-- 更新 frame_id -->
                 <ray>
                     <scan>
                         <horizontal>
-                            <samples>360</samples>  <!-- 从 640 减少到 360，减少约 44% 的数据量 -->
-                            <resolution>1</resolution>
-                            <min_angle>-3.141592654</min_angle>
-                            <max_angle>3.141592654</max_angle>
+                        <!-- 1. 水平采样数：3600个（R2雷达0.1°角分辨率，360°/3600=0.1°），原360需改为3600 -->
+                        <samples>3600</samples>
+                        <resolution>1</resolution>
+                        <!-- 2. 水平角度范围：R2是360°全向扫描，原-π~π（180°）需改为0~2π -->
+                        <min_angle>0.0</min_angle>
+                        <max_angle>6.28319</max_angle> <!-- 2π rad = 360° -->
                         </horizontal>
                         <vertical>
-                            <samples>1</samples>
-                            <resolution>0.01</resolution>
-                            <min_angle>0</min_angle>
-                            <max_angle>0</max_angle>
+                        <!-- 3. 垂直参数：R2是单线雷达，保持1个采样点即可 -->
+                        <samples>1</samples>
+                        <resolution>0.01</resolution>
+                        <min_angle>0</min_angle>
+                        <max_angle>0</max_angle>
                         </vertical>
                     </scan>
                     <range>
+                        <!-- 4. 测距范围：R2有效范围0.1~45m，原10.0需改为45.0 -->
                         <min>0.1</min>
-                        <max>10.0</max>
+                        <max>45.0</max>
                         <resolution>0.01</resolution>
                     </range>
+                    <!-- 5. 新增噪声配置（匹配R2测距误差：±20~30mm） -->
+                    <noise>
+                        <type>gaussian</type>
+                        <mean>0.0</mean>
+                        <stddev>0.02</stddev> <!-- 标准差20mm，覆盖中短距误差，长距可调整为0.03 -->
+                    </noise>
                 </ray>
                 <always_on>1</always_on>
                 <visualize>true</visualize>

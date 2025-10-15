@@ -36,7 +36,7 @@ def generate_launch_description():
             {
                 "use_sim_time": True,
                 "robot_description": robot_desc,
-                "publish_frequency": 20.0,
+                "publish_frequency": 30.0,
             }
         ],
     )
