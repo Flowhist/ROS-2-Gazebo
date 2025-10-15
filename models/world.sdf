@@ -146,42 +146,17 @@
         <!-- 正六边形围墙 -->
         <!-- 六边形半径为 8 米，每条边长约 8 米 -->
         
-        <!-- 墙1: 正前方 (0°) -->
-        <model name='hex_wall_1'>
-            <static>true</static>
-            <pose>6.928 0 0 0 0 0</pose>
-            <link name='link'>
-                <visual name='visual'>
-                    <geometry>
-                        <box>
-                            <size>0.3 8.0 2.0</size>
-                        </box>
-                    </geometry>
-                    <material>
-                        <ambient>0.7 0.7 0.7 1</ambient>
-                        <diffuse>0.7 0.7 0.7 1</diffuse>
-                        <specular>0.5 0.5 0.5 1</specular>
-                    </material>
-                </visual>
-                <collision name='collision'>
-                    <geometry>
-                        <box>
-                            <size>0.3 8.0 2.0</size>
-                        </box>
-                    </geometry>
-                </collision>
-            </link>
-        </model>
+        <!-- 墙1: 正前方 (0°) - 已移除以创建开口 -->
 
-        <!-- 墙2: 右前方 (60°) -->
+        <!-- 墙2: 右前方 (60°) - 延长以形成漏斗 -->
         <model name='hex_wall_2'>
             <static>true</static>
-            <pose>3.464 6.0 0 0 0 1.047</pose>
+            <pose>3.464 6 0 0 0 1.047</pose>
             <link name='link'>
                 <visual name='visual'>
                     <geometry>
                         <box>
-                            <size>0.3 8.0 2.0</size>
+                            <size>0.3 18.0 2.0</size>
                         </box>
                     </geometry>
                     <material>
@@ -193,7 +168,7 @@
                 <collision name='collision'>
                     <geometry>
                         <box>
-                            <size>0.3 8.0 2.0</size>
+                            <size>0.3 18.0 2.0</size>
                         </box>
                     </geometry>
                 </collision>
@@ -281,15 +256,15 @@
             </link>
         </model>
 
-        <!-- 墙6: 左前方 (300°) -->
+        <!-- 墙6: 左前方 (300°) - 延长以形成漏斗 -->
         <model name='hex_wall_6'>
             <static>true</static>
-            <pose>3.464 -6.0 0 0 0 -1.047</pose>
+            <pose>3.464 -6 0 0 0 -1.047</pose>
             <link name='link'>
                 <visual name='visual'>
                     <geometry>
                         <box>
-                            <size>0.3 8.0 2.0</size>
+                            <size>0.3 18.0 2.0</size>
                         </box>
                     </geometry>
                     <material>
@@ -301,7 +276,88 @@
                 <collision name='collision'>
                     <geometry>
                         <box>
-                            <size>0.3 8.0 2.0</size>
+                            <size>0.3 18.0 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 狭长通道 - 左墙 -->
+        <model name='corridor_left'>
+            <static>true</static>
+            <pose>50 1.5 0 0 0 0</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>80 0.3 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>80 0.3 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 狭长通道 - 右墙 -->
+        <model name='corridor_right'>
+            <static>true</static>
+            <pose>50 -1.5 0 0 0 0</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>80 0.3 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>80 0.3 2.0</size>
+                        </box>
+                    </geometry>
+                </collision>
+            </link>
+        </model>
+
+        <!-- 通道末端封闭墙 -->
+        <model name='corridor_end'>
+            <static>true</static>
+            <pose>90 0 0 0 0 0</pose>
+            <link name='link'>
+                <visual name='visual'>
+                    <geometry>
+                        <box>
+                            <size>0.3 3.3 2.0</size>
+                        </box>
+                    </geometry>
+                    <material>
+                        <ambient>0.7 0.7 0.7 1</ambient>
+                        <diffuse>0.7 0.7 0.7 1</diffuse>
+                        <specular>0.5 0.5 0.5 1</specular>
+                    </material>
+                </visual>
+                <collision name='collision'>
+                    <geometry>
+                        <box>
+                            <size>0.3 3.3 2.0</size>
                         </box>
                     </geometry>
                 </collision>
